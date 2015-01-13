@@ -1,0 +1,49 @@
+#!/bin/ksh
+
+#
+# The first arg is the blog name (wordpress.com assuemd). The second arg is the
+# subdirectory-path. And the third arg is the post-number (usually 0) or
+# page-name. This command returns a title and the path of the post.
+#
+
+if [[ $# < 3 ]] then
+	echo "Too few arguments!";
+	exit;
+fi
+
+dir=../blog/$1.wordpress.com/$2/$3
+
+ntxtfile=$( ls $dir | grep txt$ | wc -l )
+
+if [[ $ntxtfile -gt 1 ]] then
+	echo "Too many txt files in:";
+	echo $dir;
+	exit;
+fi
+
+if [[ $ntxtfile  -lt 1 ]] then
+	echo "Need a txt file in:";
+	echo $dir;
+	exit;
+fi
+
+fname=$( ls $dir | grep txt$ )
+bname=$( ls $dir | grep txt$ | sed s/\.txt//g )
+hname=$bname".html"
+
+inpath=$dir/$fname
+outpath=$dir/$hname
+
+asciidoc -b html4 -d article $inpath
+# Get rid asciidoc's _stupid_ ^M's
+dos2unix $outpath $outpath.temp
+mv $outpath.temp $outpath
+#This title is good, we just want to scrub-out the header-tags.
+htmltitle=$( ./scrub.ksh $outpath )
+#print "Plain Title:\n"
+#print "$htmltitle"
+#print "Stripped Title:\n"
+#print "$(echo $htmltitle | sed 's/\<h1\>//g' | sed 's/\<h\/1\>//g')"
+stripped_title=$(echo $htmltitle | sed 's/<h1>//g' | sed 's/<\/h1>//g')
+print "{ \"title\": \"$stripped_title\", \"path\": \"$outpath\"}"
+

@@ -1,0 +1,52 @@
+#!/bin/ksh
+
+site=$1
+ptype=$2
+plabel=$3
+
+case $ptype in
+	posts)
+	rqtype="post"
+	;;
+	pages)
+	rqtype="page"
+	;;
+	*)
+	echo "The type argument must be either 'posts' or 'pages'."
+	;;
+esac
+
+title_path=$(./ascii2wp $site $ptype $plabel)
+title=$(echo $title_path | json title)
+htmlpath=$(echo $title_path | json path)
+site_url="$site.wordpress.com"
+
+
+curl="curl -s -k"
+
+rest_url="https://public-api.wordpress.com/rest/v1.1/sites/$site_url/posts/"
+content=$(cat $htmlpath)
+
+tok=$(./wplogin)
+
+meta_data="../blog/$site.wordpress.com/$ptype/$plabel/meta.json"
+
+#
+# First we check for the presence of metadata from wordpress. If the metadata
+# is not there, that means this content hasn't already been published. Or that
+# the user used another client.
+#
+if [[ ! -f $meta_data ]]; then
+	echo "Can't edit a post that hasn't been published."
+	echo "If the post has been published, use the 'sync' command."
+	exit;
+fi
+
+content_id=$(cat $meta_data | json ID)
+full_rest_url="$rest_url$content_id"
+
+$curl -H "Authorization: Bearer $tok" \
+	--data-urlencode "title=$title"\
+	--data-urlencode "content=$content"\
+	--data-urlencode "type=$rqtype"\
+	$full_rest_url > $meta_data

@@ -1,0 +1,22 @@
+#!/bin/ksh
+
+site=$1
+ptype=$2
+plabel=$3
+
+
+tok=$(./wplogin)
+curl="curl -s -k"
+
+rest_url="https://public-api.wordpress.com/rest/v1.1/me/sites"
+$curl -H  "Authorization: Bearer $tok" $rest_url | \
+	json sites | \
+	json -a URL | \
+	sed 's/https:\/\///g' | \
+	sed 's/http:\/\///g' | \
+	while read -r blogdir
+	do
+		# We make the directories, and if they already exist, we send
+		# the error messages to the null device.
+		mkdir ../blog/$blogdir 2> /dev/null
+	done;

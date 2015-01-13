@@ -1,0 +1,68 @@
+#!/bin/ksh
+
+site=$1
+ptype=$2
+plabel=$3
+
+case $ptype in
+	posts)
+	rqtype="post"
+	;;
+	pages)
+	rqtype="page"
+	;;
+	*)
+	echo "The type argument must be either 'posts' or 'pages'."
+	;;
+esac
+
+title_path=$(./ascii2wp $site $ptype $plabel)
+title=$(echo $title_path | json title)
+htmlpath=$(echo $title_path | json path)
+site_url="$site.wordpress.com"
+
+
+curl="curl -s -k"
+
+rest_url="https://public-api.wordpress.com/rest/v1.1/sites/$site_url/posts/new/"
+content=$(cat $htmlpath)
+
+tok=$(./wplogin)
+
+meta_data="../blog/$site.wordpress.com/$ptype/$plabel/meta.json"
+
+#
+# First we check for the presence of metadata from wordpress. If the metadata
+# is there, that means this content has already been published.
+#
+if [[ -f $meta_data ]]; then
+	echo "This post is already published."
+	echo "To edit the post, use the 'edit' command."
+	exit;
+fi
+
+#
+# If there is no metadata, there is still the possibility that the content was
+# published using a browser or some other client. So we fetch all the posts,
+# and compare the titles and content to our titles and content. If either
+# match, we tell the user, and ask the user to confirm that those two entities
+# are the same.
+#
+# TODO we can probably improve this by using some kind of similarity measure
+# (such as those used in information retrieval).
+#
+
+nmatchtitle=$(./showallposts $site | json posts | json -a title | grep "$title" | wc -l)
+
+if [[ $nmatchtitle -gt 0 ]]; then
+	echo "You already have a post named '$title', on '$site_url'"
+	echo "This program doesn't support posts with the same titles."
+	exit
+fi
+
+$curl -H "Authorization: Bearer $tok" \
+	--data-urlencode "title=$title"\
+	--data-urlencode "content=$content"\
+	--data-urlencode "type=$rqtype"\
+	"$rest_url" >\
+	$meta_data

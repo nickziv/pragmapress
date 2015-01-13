@@ -1,0 +1,56 @@
+#!/bin/ksh
+
+site=$1
+ptype=$2
+plabel=$3
+
+case $ptype in
+	posts)
+	rqtype="post"
+	;;
+	pages)
+	rqtype="page"
+	;;
+	*)
+	echo "The type argument must be either 'posts' or 'pages'."
+	;;
+esac
+
+site_url="$site.wordpress.com"
+site_dir="../blog/$site.wordpress.com/"
+
+dir="$site_dir/$ptype/$plabel/"
+
+#
+# If the site does not exist, we inform the user.
+#
+if [[ ! -d $site_dir ]]; then
+	echo "$site_url does not exist."
+	echo "Create it online, and run the 'wpsync' command."
+	exit;
+fi
+
+# This dir might not exist, so we create it.
+if [[ ! -d $dir ]]; then
+	mkdir $dir 2> /dev/null
+fi
+
+filename=$(ls $dir | grep txt$)
+
+#
+# If there is no premade asciidoc file, we set fname to default.txt
+#
+if [[ $filename == "" ]]; then
+	filename="default.txt"
+fi
+
+editor=$(cat "../cred.json" | json editor)
+
+#
+# I guess every unix has `vi` installed.
+#
+if [[ $editor == "" ]]; then
+	vi $dir$filename
+else
+	$editor $dir$filename
+fi

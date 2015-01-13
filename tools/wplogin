@@ -1,0 +1,12 @@
+#!/bin/ksh
+
+username=$(cat ../cred.json | json username)
+password=$(cat ../cred.json | json password)
+clientid=$(cat ../cred.json | json clientid)
+clientsecret='unknown'
+url="https://public-api.wordpress.com/oauth2/token"
+curl="curl -s -k"
+login_data="client_id=$clientid&client_secret=$clientsecret&\
+grant_type=password&username=$username&password=$password"
+tok=$($curl --data $login_data $url | json access_token)
+echo $tok
