@@ -32,7 +32,7 @@ Your posts are organized in the `blog/` directory. Each blog is stored as a
 directory called `blog/$sitename.wordpress.com`. In each blog's directory you
 have the following subdirectories: `posts` and `pages`. Each of _those_
 subdirectories contain content directories. A content directory contains
-content. The only file that should be in there is a <filename>.txt file. This
+content. The only file that should be in there is a `<filename>`.txt file. This
 .txt file is an asciidoc file. Once you write your post in asciidoc. You can
 publish it by:
 
