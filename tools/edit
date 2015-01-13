@@ -19,7 +19,8 @@ esac
 site_url="$site.wordpress.com"
 site_dir="../blog/$site.wordpress.com/"
 
-dir="$site_dir/$ptype/$plabel/"
+dir_type="$site_dir/$ptype/"
+dir="$dir_type$plabel/"
 
 #
 # If the site does not exist, we inform the user.
@@ -32,6 +33,7 @@ fi
 
 # This dir might not exist, so we create it.
 if [[ ! -d $dir ]]; then
+	mkdir $dir_type 2> /dev/null
 	mkdir $dir 2> /dev/null
 fi
 
