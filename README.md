@@ -80,6 +80,9 @@ DEPENDENCIES
 You need:
 
 `json` command line utility (https://github.com/zpoley/json-command)
+
 `asciidoc` must be installed (http://www.methods.co.nz/asciidoc/)
+
 `awk` (should be pre-installed on non-stripped-down unixen)
+
 `ksh` (the default shell on SmartOS, should be installable from pkgs)
