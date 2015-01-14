@@ -106,3 +106,5 @@ You need:
 `awk` (should be pre-installed on non-stripped-down unixen)
 
 `ksh` (the default shell on SmartOS, should be installable from pkgs)
+
+`dos2unix` for removing ^M's from asciidoc-generated HTML
