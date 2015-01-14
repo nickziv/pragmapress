@@ -68,6 +68,11 @@ The `publish` and `update` commands translate the asciidoc into HTML, and then
 they _scrub_ the HTML to make it play well with wordpress's handling of
 line-breaks. Also the title is extracted and placed into the REST API call.
 
+You can list your posts or pages by doing:
+
+	./list myblog posts
+	./list myblog pages
+
 That's all I have so far. More features are coming soon, as the need for them
 arises.
 
