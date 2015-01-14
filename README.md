@@ -32,26 +32,41 @@ Your posts are organized in the `blog/` directory. Each blog is stored as a
 directory called `blog/$sitename.wordpress.com`. In each blog's directory you
 have the following subdirectories: `posts` and `pages`. Each of _those_
 subdirectories contain content directories. A content directory contains
-content. The only file that should be in there is a `<filename>`.txt file. This
-.txt file is an asciidoc file. Once you write your post in asciidoc. You can
-publish it by:
+content. The only file that should be in there is a `<filename>`.txt file. Once
+you create your blog online, you should execute `wpsync` to create a new
+directory for that blog.
 
 	cd tools
-	./publish $sitename $post_type $post_content_dir
+	./wpsync
 
-Once you run that, the content directory for that post will contain a scrubbed
-HTML file suitable for wordpress.com, and a json file that contain metadata
-about the post. You should ONLY EVER MODIFY THE ASCIIDOC FILE.
+`wpsync` automatically gets a list of the blogs you own and creates new
+directories for any blogs it doesn't have on record. Once you do that you can
+begin writing and publishing posts and pages. To write a new post on
+myblog.wordpress.com do the following:
 
-To update a post or page, you change the asciidoc content and run:
+	./edit myblog posts mypost
 
-	cd tools
-	./update $sitename $post_type $post_content_dir
+This will drop you into your preferred editor, from where you can write the
+post in asciidoc. Once you finish writing, you can exit the editor. To publish
+the post simply type:
 
-To edit in your favorite text editor do:
+	./publish myblog posts mypost
 
-	cd tools
-	./edit $sitename $post_type $post_content_dir
+To make changes call `edit` again and change the content of the post.
+Afterward, you can send the updates to wordpress by executing:
+
+	./update myblog posts mypost
+
+To edit and publish _pages_, you can use the `pages` type instead of the
+`posts` type:
+
+	./edit myblog pages mypage
+	./publish myblog pages mypage
+	./update myblog pages mypage
+
+The `publish` and `update` commands translate the asciidoc into HTML, and then
+they _scrub_ the HTML to make it play well with wordpress's handling of
+line-breaks. Also the title is extracted and placed into the REST API call.
 
 That's all I have so far. More features are coming soon, as the need for them
 arises.
