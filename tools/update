@@ -19,6 +19,8 @@ esac
 title_path=$(./ascii2wp $site $ptype $plabel)
 title=$(echo $title_path | json title)
 htmlpath=$(echo $title_path | json path)
+pdfpath=$(echo $title_path | json pdf)
+pdfname=$(basename $pdfpath)
 site_url="$site.wordpress.com"
 
 
@@ -30,6 +32,7 @@ content=$(cat $htmlpath)
 tok=$(./wplogin)
 
 meta_data="../blog/$site.wordpress.com/$ptype/$plabel/meta.json"
+media_lib="../blog/$site.wordpress.com/mlib"
 
 #
 # First we check for the presence of metadata from wordpress. If the metadata
@@ -42,11 +45,19 @@ if [[ ! -f $meta_data ]]; then
 	exit;
 fi
 
+# We delete the old PDF from the WP servers
+./rem_media $site $pdfpath 
+# And then we upload the new one
+./add_media $site $pdfpath
+
+pdf_url=$(cat $media_lib/$pdfname.json | json 'media[0].URL')
+pdf_header="<br><a href=\"$pdf_url\">Read Post As PDF</a><br>"
+
 content_id=$(cat $meta_data | json ID)
 full_rest_url="$rest_url$content_id"
 
 $curl -H "Authorization: Bearer $tok" \
 	--data-urlencode "title=$title"\
-	--data-urlencode "content=$content"\
+	--data-urlencode "content=$pdf_header$content"\
 	--data-urlencode "type=$rqtype"\
 	$full_rest_url > $meta_data

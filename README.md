@@ -68,10 +68,35 @@ The `publish` and `update` commands translate the asciidoc into HTML, and then
 they _scrub_ the HTML to make it play well with wordpress's handling of
 line-breaks. Also the title is extracted and placed into the REST API call.
 
+The `publish` and `update` commands also create a PDF which is uploaded to the
+media library of `myblog`. A link to the PDF is added to the beginning of the
+HTML content.
+
 You can list your posts or pages by doing:
 
 	./list myblog posts
 	./list myblog pages
+
+You can also upload and manage media files that will appear on a blog. Because
+the `publish` and `update` commands generate, upload, and link-to PDFs
+automatically, you'll have to use `ifdef` conditionals for each backend (HTML4
+and DBLATEX). This is so that you can have control over the image-layout in the
+PDF, which doesn't really matter in the HTML output. 
+
+You can upload media by doing:
+
+	./add_media myblog path-to-media-file
+
+You can then get the URL by calling:
+
+	./get_media_url myblog media-filename
+
+You can use this URL with the HTML4 backend. To get the absolute on-disk path
+of this media (stored in the directory heirarchy under ./blog/):
+
+	./get_media_path myblog media-filename
+
+You can then use the path with the DBLaTeX backend.
 
 That's all I have so far. More features are coming soon, as the need for them
 arises.

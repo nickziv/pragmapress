@@ -1,0 +1,65 @@
+#!/bin/ksh
+
+# This script uploads media to wordpress.com It uploads it to the media library
+# of a specific blog.  This media library is reflected in the directory
+# structure in the blog/ directory. The media library is stored in
+# blog/<blogurl>/mlib/.
+
+# When a call to publish is made, an attribute is set at runtime that allows a
+# macro-like object to expand into the proper URL or path.
+
+# Argument 1 is the site-name. Argument 2 is the path to the media file. 
+
+site=$1
+ptype="mlib"
+file=$2
+
+
+site_url="$site.wordpress.com"
+sitepath="../blog/$site_url/"
+fpath="../blog/$site_url/$ptype/"
+fname=$(basename $2)
+if [[ ! -d $sitepath ]]; then
+	echo "There is no site '$site_url'"
+	echo "Check your spelling"
+	echo "If the site actually exists, run the 'wpsync' command"
+	exit
+fi
+if [[ ! -d $fpath ]]; then
+	mkdir $fpath
+fi
+if [[ -f $fpath$fname ]]; then
+	echo "File named '$fname' exists in $fpath"
+	echo "Use the 'rep_media' command to replace it"
+	echo "Or change the file's name before adding it"
+	exit
+fi
+cp $2 $fpath
+
+curl="curl -s -k"
+
+rest_url="https://public-api.wordpress.com/rest/v1.1/sites/$site_url/media/new/"
+
+tok=$(./wplogin)
+
+meta_data="../blog/$site.wordpress.com/$ptype/$fname.json"
+
+
+#
+# There is still the possibility that media of the same name was uploaded from
+# some other client. So we check it out.
+#
+#
+
+nmatchtitle=$(./showallmedia $site | json media | json -a file | grep "$fname" | wc -l)
+
+if [[ $nmatchtitle -gt 0 ]]; then
+	echo "You already have a media file named '$fname', on '$site_url'"
+	echo "This program doesn't support media files with the same names."
+	exit
+fi
+
+$curl -H "Authorization: Bearer $tok" \
+	--form 'media[]=@'"$fpath$fname"\
+	"$rest_url" >\
+	$meta_data

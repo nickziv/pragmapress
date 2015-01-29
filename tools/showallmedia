@@ -1,0 +1,15 @@
+#!/bin/ksh
+
+site=$1
+site_url="$site.wordpress.com"
+
+
+curl="curl -s -k"
+
+rest_url="https://public-api.wordpress.com/rest/v1.1/sites/$site_url/media/?number=100"
+
+#jsonposts=$($curl $rest_url)
+$curl $rest_url
+
+#This returns a post-title on each line
+#echo $jsonposts | json --validate | less

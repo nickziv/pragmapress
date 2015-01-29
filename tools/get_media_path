@@ -1,0 +1,40 @@
+#!/bin/ksh
+
+# This script uploads media to wordpress.com It uploads it to the media library
+# of a specific blog.  This media library is reflected in the directory
+# structure in the blog/ directory. The media library is stored in
+# blog/<blogurl>/mlib/.
+
+# When a call to publish is made, an attribute is set at runtime that allows a
+# macro-like object to expand into the proper URL or path.
+
+# Argument 1 is the site-name. Argument 2 is the path to the media file. 
+
+site=$1
+ptype="mlib"
+file=$2
+
+
+site_url="$site.wordpress.com"
+sitepath="../blog/$site_url/"
+fpath="../blog/$site_url/$ptype/"
+fname=$(basename $2)
+if [[ ! -d $sitepath ]]; then
+	echo "There is no site '$site_url'"
+	echo "Check your spelling"
+	echo "If the site actually exists, run the 'wpsync' command"
+	exit
+fi
+if [[ ! -d $fpath ]]; then
+	echo "There is no media for this blog"
+	exit
+fi
+if [[ ! -f $fpath$fname ]]; then
+	echo "File named '$fname' does not exist."
+	exit
+fi
+
+cd $fpath
+
+abs_path=$(pwd)
+echo $abs_path/$fname

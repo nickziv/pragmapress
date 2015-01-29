@@ -19,17 +19,22 @@ esac
 title_path=$(./ascii2wp $site $ptype $plabel)
 title=$(echo $title_path | json title)
 htmlpath=$(echo $title_path | json path)
+pdfpath=$(echo $title_path | json pdf)
+pdfname=$(basename $pdfpath)
 site_url="$site.wordpress.com"
 
 
 curl="curl -s -k"
 
 rest_url="https://public-api.wordpress.com/rest/v1.1/sites/$site_url/posts/new/"
+
+# TODO we want to cat the PDF-link: cat $pdflinkdata $htmlpath
 content=$(cat $htmlpath)
 
 tok=$(./wplogin)
 
 meta_data="../blog/$site.wordpress.com/$ptype/$plabel/meta.json"
+media_lib="../blog/$site.wordpress.com/mlib"
 
 #
 # First we check for the presence of metadata from wordpress. If the metadata
@@ -40,6 +45,11 @@ if [[ -f $meta_data ]]; then
 	echo "To edit the post, use the 'edit' command."
 	exit;
 fi
+
+./add_media $site $pdfpath
+
+pdf_url=$(cat $media_lib/$pdfname.json | json 'media[0].URL')
+pdf_header="<br><a href=\"$pdf_url\">Read Post As PDF</a><br>"
 
 #
 # If there is no metadata, there is still the possibility that the content was
@@ -62,7 +72,7 @@ fi
 
 $curl -H "Authorization: Bearer $tok" \
 	--data-urlencode "title=$title"\
-	--data-urlencode "content=$content"\
+	--data-urlencode "content=$pdf_header$content"\
 	--data-urlencode "type=$rqtype"\
 	"$rest_url" >\
 	$meta_data
