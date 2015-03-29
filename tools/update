@@ -19,8 +19,11 @@ esac
 title_path=$(./ascii2wp $site $ptype $plabel)
 title=$(echo $title_path | json title)
 htmlpath=$(echo $title_path | json path)
-pdfpath=$(echo $title_path | json pdf)
-pdfname=$(basename $pdfpath)
+
+if [[ $ptype == "posts" ]]; then
+	pdfpath=$(echo $title_path | json pdf)
+	pdfname=$(basename $pdfpath)
+fi
 site_url="$site.wordpress.com"
 
 
@@ -45,13 +48,19 @@ if [[ ! -f $meta_data ]]; then
 	exit;
 fi
 
-# We delete the old PDF from the WP servers
-./rem_media $site $pdfpath 
-# And then we upload the new one
-./add_media $site $pdfpath
+if [[ $ptype == "posts" ]]; then
+	# We delete the old PDF from the WP servers
+	./rem_media $site $pdfpath 
+	# And then we upload the new one
+	./add_media $site $pdfpath
+fi
 
-pdf_url=$(cat $media_lib/$pdfname.json | json 'media[0].URL')
-pdf_header="<br><a href=\"$pdf_url\">Read Post As PDF</a><br>"
+if [[ $ptype == "posts" ]]; then
+	pdf_url=$(cat $media_lib/$pdfname.json | json 'media[0].URL')
+	pdf_header="<br><a href=\"$pdf_url\">Read Post As PDF</a><br>"
+else
+	pdf_header=""
+fi
 
 content_id=$(cat $meta_data | json ID)
 full_rest_url="$rest_url$content_id"

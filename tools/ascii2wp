@@ -43,9 +43,11 @@ xoutpath=$dir/$xname
 poutpath=$dir/$pname
 
 asciidoc -b html4 -d article $inpath
-asciidoc -b docbook -d article $inpath
-# We don't a TOC for a blog post
-dblatex --type=pdf -P doc.toc.show="0" -T simple -b pdftex $xoutpath -o $poutpath
+if [[ $2 == "posts" ]]; then
+	asciidoc -b docbook -d article $inpath
+	# We don't a TOC for a blog post
+	dblatex --type=pdf -P doc.toc.show="0" -T simple -b pdftex $xoutpath -o $poutpath
+fi
 # Get rid asciidoc's _stupid_ ^M's
 dos2unix $outpath $outpath.temp
 mv $outpath.temp $outpath
