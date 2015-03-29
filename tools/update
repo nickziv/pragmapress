@@ -50,7 +50,7 @@ fi
 
 if [[ $ptype == "posts" ]]; then
 	# We delete the old PDF from the WP servers
-	./rem_media $site $pdfpath 
+	./rem_media $site $pdfpath
 	# And then we upload the new one
 	./add_media $site $pdfpath
 fi
